@@ -789,6 +789,16 @@ public class MockDatabase implements Database, InternalDatabase {
     }
 
     @Override
+    public Database getMetaDatabase() {
+        return null;
+    }
+
+    @Override
+    public void setMetaDatabase(Database metaDatabase) {
+
+    }
+
+    @Override
     public boolean supportsNotNullConstraintNames() {
         return false;
     }

@@ -180,7 +180,9 @@ public class Liquibase implements AutoCloseable {
     }
     public void update(Contexts contexts, LabelExpression labelExpression, boolean checkLiquibaseTables)
         throws LiquibaseException {
-        LockService lockService = LockServiceFactory.getInstance().getLockService(database);
+        Database databaseForLockAndHis = this.database.getMetaDatabase() == null
+                ? this.database : database.getMetaDatabase();
+        LockService lockService = LockServiceFactory.getInstance().getLockService(databaseForLockAndHis);
         lockService.waitForLock();
 
         changeLogParameters.setContexts(contexts);
@@ -188,20 +190,29 @@ public class Liquibase implements AutoCloseable {
 
         try {
             DatabaseChangeLog changeLog = getDatabaseChangeLog();
-            
+            if(this.database.getMetaDatabase() != null) {
+                changeLog.getChangeSets().stream().forEach(changeSet -> {
+                    String metaChangeSetId = StringUtils.join(Arrays.asList("meta4",
+                            this.database.getShortName().trim(), ":", changeSet.getId()), "");
+                    changeSet.setId(metaChangeSetId);
+                });
+            }
             if (checkLiquibaseTables) {
                 checkLiquibaseTables(true, changeLog, contexts, labelExpression);
             }
 
-            ChangeLogHistoryServiceFactory.getInstance().getChangeLogService(database).generateDeploymentId();
+            ChangeLogHistoryServiceFactory.getInstance().getChangeLogService(databaseForLockAndHis).generateDeploymentId();
 
-            changeLog.validate(database, contexts, labelExpression);
+            changeLog.validate(databaseForLockAndHis, contexts, labelExpression);
 
             ChangeLogIterator changeLogIterator = getStandardChangelogIterator(contexts, labelExpression, changeLog);
 
-            changeLogIterator.run(createUpdateVisitor(), new RuntimeEnvironment(database, contexts, labelExpression));
+            changeLogIterator.run(createUpdateVisitor(), new RuntimeEnvironment(this.database, contexts, labelExpression));
         } finally {
-            database.setObjectQuotingStrategy(ObjectQuotingStrategy.LEGACY);
+            this.database.setObjectQuotingStrategy(ObjectQuotingStrategy.LEGACY);
+            if(this.database.getMetaDatabase() != null) {
+                this.database.setObjectQuotingStrategy(ObjectQuotingStrategy.LEGACY);
+            }
             try {
                 lockService.releaseLock();
             } catch (LockException e) {
@@ -1221,13 +1232,17 @@ public class Liquibase implements AutoCloseable {
 
     public void checkLiquibaseTables(boolean updateExistingNullChecksums, DatabaseChangeLog databaseChangeLog,
                                      Contexts contexts, LabelExpression labelExpression) throws LiquibaseException {
+        Database database = getDatabase();
+        if(database.getMetaDatabase() != null) {
+            database = database.getMetaDatabase();
+        }
         ChangeLogHistoryService changeLogHistoryService =
-            ChangeLogHistoryServiceFactory.getInstance().getChangeLogService(getDatabase());
+            ChangeLogHistoryServiceFactory.getInstance().getChangeLogService(database);
         changeLogHistoryService.init();
         if (updateExistingNullChecksums) {
             changeLogHistoryService.upgradeChecksums(databaseChangeLog, contexts, labelExpression);
         }
-        LockServiceFactory.getInstance().getLockService(getDatabase()).init();
+        LockServiceFactory.getInstance().getLockService(database).init();
     }
 
     /**
@@ -1444,21 +1459,24 @@ public class Liquibase implements AutoCloseable {
      * Sets checksums to null so they will be repopulated next run
      */
     public void clearCheckSums() throws LiquibaseException {
+        Database databaseForLockAndHis = this.database.getMetaDatabase() == null
+                ? this.database : database.getMetaDatabase();
+
         LOG.info(LogType.LOG, "Clearing database change log checksums");
-        LockService lockService = LockServiceFactory.getInstance().getLockService(database);
+        LockService lockService = LockServiceFactory.getInstance().getLockService(databaseForLockAndHis);
         lockService.waitForLock();
 
         try {
             checkLiquibaseTables(false, null, new Contexts(), new LabelExpression());
 
             UpdateStatement updateStatement = new UpdateStatement(
-                getDatabase().getLiquibaseCatalogName(),
-                getDatabase().getLiquibaseSchemaName(),
-                getDatabase().getDatabaseChangeLogTableName()
+                    databaseForLockAndHis.getLiquibaseCatalogName(),
+                    databaseForLockAndHis.getLiquibaseSchemaName(),
+                    databaseForLockAndHis.getDatabaseChangeLogTableName()
             );
             updateStatement.addNewColumnValue("MD5SUM", null);
-            ExecutorService.getInstance().getExecutor(database).execute(updateStatement);
-            getDatabase().commit();
+            ExecutorService.getInstance().getExecutor(databaseForLockAndHis).execute(updateStatement);
+            databaseForLockAndHis.commit();
         } finally {
             try {
                 lockService.releaseLock();

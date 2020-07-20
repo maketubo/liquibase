@@ -17,7 +17,9 @@ public class ShouldRunChangeSetFilter implements ChangeSetFilter {
     public ShouldRunChangeSetFilter(Database database, boolean ignoreClasspathPrefix) throws DatabaseException {
         this.ignoreClasspathPrefix = ignoreClasspathPrefix;
         this.ranChangeSets = new HashMap<>();
-
+        if(database.getMetaDatabase() != null) {
+            database = database.getMetaDatabase();
+        }
         //ensure we have only the latest version of each ranChangeset in case multiple versions ended up in the databasechangelog table
         for (RanChangeSet ranChangeSet : database.getRanChangeSetList()) {
             RanChangeSet existingChangeSet = ranChangeSets.get(ranChangeSet.toString());

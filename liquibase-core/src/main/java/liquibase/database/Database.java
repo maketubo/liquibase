@@ -453,5 +453,9 @@ public interface Database extends PrioritizedService {
     String unescapeDataTypeString(String dataTypeString);
 
     ValidationErrors validate();
+
+    Database getMetaDatabase();
+
+    void setMetaDatabase(Database metaDatabase);
 }
 

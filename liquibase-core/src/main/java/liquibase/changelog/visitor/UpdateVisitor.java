@@ -61,9 +61,15 @@ public class UpdateVisitor implements ChangeSetVisitor {
         fireRan(changeSet, databaseChangeLog, database, execType);
         // reset object quoting strategy after running changeset
         this.database.setObjectQuotingStrategy(previousStr);
-        this.database.markChangeSetExecStatus(changeSet, execType);
-
-        this.database.commit();
+        if(this.database.getMetaDatabase() == null) {
+            this.database.markChangeSetExecStatus(changeSet, execType);
+            this.database.commit();
+        } else {
+            Database dbForMarkChange = this.database.getMetaDatabase();
+            dbForMarkChange.markChangeSetExecStatus(changeSet, execType);
+            dbForMarkChange.commit();
+            this.database.commit();
+        }
     }
 
     protected void fireRunFailed(ChangeSet changeSet, DatabaseChangeLog databaseChangeLog, Database database, MigrationFailedException e) {

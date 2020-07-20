@@ -1199,4 +1199,8 @@ public class ChangeSet implements Conditional, ChangeLogChild {
     public void setStoredCheckSum(CheckSum storedCheckSum) {
         this.storedCheckSum = storedCheckSum;
     }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 }

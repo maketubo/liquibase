@@ -72,7 +72,7 @@ No changeSets deployed
                         """
 Liquibase History for jdbc:test://url
 
-- Database updated at ${dateFormat.format(Date.parse("M/dd/yy h:mm a", "7/9/19 12:15 PM"))}. Applied 1 changeSet(s), DeploymentId: 1
+- Database updated at ${dateFormat.format(Date.parse('yyyy/MM/dd HH:mm:ss.S', '2019/07/09 12:15:00.00'))}. Applied 1 changeSet(s), DeploymentId: 1
   com/example/test.xml::13::test-user
 """
                 ],
@@ -87,7 +87,7 @@ Liquibase History for jdbc:test://url
                         """
 Liquibase History for jdbc:test://url
 
-- Database updated at ${dateFormat.format(Date.parse("M/dd/yy h:mm a", "7/9/19 12:15 PM"))}. Applied 3 changeSet(s) in 1.982s, DeploymentId: 1
+- Database updated at ${dateFormat.format(Date.parse('yyyy/MM/dd HH:mm:ss.S', '2019/07/09 12:15:00.00'))}. Applied 3 changeSet(s) in 1.982s, DeploymentId: 1
   com/example/test.xml::13::test-user
   com/example/test.xml::14::other-user
   com/example/test.xml::15::test-user
@@ -111,15 +111,15 @@ Liquibase History for jdbc:test://url
                         """
 Liquibase History for jdbc:test://url
 
-- Database updated at ${dateFormat.format(Date.parse("M/dd/yy h:mm a", "7/9/19 12:15 PM"))}. Applied 3 changeSet(s) in 1.982s, DeploymentId: 1
+- Database updated at ${dateFormat.format(Date.parse('yyyy/MM/dd HH:mm:ss.S', '2019/07/09 12:15:00.00'))}. Applied 3 changeSet(s) in 1.982s, DeploymentId: 1
   com/example/test.xml::13::test-user
   com/example/test.xml::14::other-user
   com/example/test.xml::15::test-user
 
-- Database updated at ${dateFormat.format(Date.parse("M/dd/yy h:mm a", "7/9/19 2:18 PM"))}. Applied 1 changeSet(s), DeploymentId: 2
+- Database updated at ${dateFormat.format(Date.parse('yyyy/MM/dd HH:mm:ss.S', '2019/07/09 14:18:00.00'))}. Applied 1 changeSet(s), DeploymentId: 2
   com/example/test2.xml::13::test-user
 
-- Database updated at ${dateFormat.format(Date.parse("M/dd/yy h:mm a", "7/9/19 6:22 PM"))}. Applied 3 changeSet(s) in 241.982s, DeploymentId: 3
+- Database updated at ${dateFormat.format(Date.parse('yyyy/MM/dd HH:mm:ss.S', '2019/07/09 18:22:00.00'))}. Applied 3 changeSet(s) in 241.982s, DeploymentId: 3
   com/example/test.xml::1::test-user
   com/example/test.xml3::2::other-user
   com/example/test.xml::3::test-user
